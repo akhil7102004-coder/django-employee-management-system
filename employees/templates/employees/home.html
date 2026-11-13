@@ -1,0 +1,282 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Dashboard | EMS{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+{% block breadcrumb %}Overview{% endblock %}
+
+{% block content %}
+<section class="dashboard-intro">
+    <div>
+        <p class="eyebrow">OVERVIEW</p>
+        <h1>Good day, Admin <span class="wave" aria-hidden="true">✦</span></h1>
+        <p class="text-secondary mb-0">Here’s what’s happening across your team.</p>
+    </div>
+    <a href="{% url 'add_employee' %}" class="btn btn-primary dashboard-primary-action">
+        <span aria-hidden="true">+</span> Add employee
+    </a>
+</section>
+
+<section class="row g-3 g-xl-4 dashboard-kpis" aria-label="Employee statistics">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <article class="kpi-card">
+            <div class="kpi-topline">
+                <span class="kpi-icon kpi-icon-indigo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </span>
+                <span class="kpi-caption">TEAM SIZE</span>
+            </div>
+            <p class="kpi-label">Total employees</p>
+            <p class="kpi-value">{{ total_employees }}</p>
+            <p class="kpi-note">People in your organization</p>
+        </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <article class="kpi-card">
+            <div class="kpi-topline">
+                <span class="kpi-icon kpi-icon-teal" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+                </span>
+                <span class="kpi-caption">ORGANIZATION</span>
+            </div>
+            <p class="kpi-label">Departments</p>
+            <p class="kpi-value">{{ total_departments }}</p>
+            <p class="kpi-note">Distinct departments</p>
+        </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <article class="kpi-card">
+            <div class="kpi-topline">
+                <span class="kpi-icon kpi-icon-purple" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </span>
+                <span class="kpi-caption">COMPENSATION</span>
+            </div>
+            <p class="kpi-label">Average salary</p>
+            <p class="kpi-value kpi-value-salary">₹{{ average_salary|floatformat:0 }}</p>
+            <p class="kpi-note">Average across all employees</p>
+        </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <article class="kpi-card">
+            <div class="kpi-topline">
+                <span class="kpi-icon kpi-icon-orange" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M19 8v6m3-3h-6"/></svg>
+                </span>
+                <span class="kpi-caption">LAST 30 DAYS</span>
+            </div>
+            <p class="kpi-label">New employees</p>
+            <p class="kpi-value">{{ new_employees }}</p>
+            <p class="kpi-note">Based on joining date</p>
+        </article>
+    </div>
+</section>
+
+<section class="dashboard-section" aria-labelledby="analytics-heading">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">PEOPLE INSIGHTS</p>
+            <h2 id="analytics-heading">Team analytics</h2>
+        </div>
+        <span class="section-period">Live data</span>
+    </div>
+    <div class="row g-3 g-xl-4">
+        <div class="col-12 col-xl-4">
+            <article class="chart-card" id="department-analytics">
+                <div class="chart-heading">
+                    <div><h3>Department distribution</h3><p>Employees by department</p></div>
+                    <span class="chart-dot chart-dot-indigo" aria-hidden="true"></span>
+                </div>
+                <div class="chart-wrap chart-wrap-doughnut">
+                    <canvas id="department-chart" aria-label="Employees by department"></canvas>
+                    <p class="chart-empty d-none">No department data available yet.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-4">
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div><h3>Joining trends</h3><p>New joiners over the last 6 months</p></div>
+                    <span class="chart-dot chart-dot-teal" aria-hidden="true"></span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="joining-chart" aria-label="Employee joining trends"></canvas>
+                    <p class="chart-empty d-none">No joining data available yet.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-4">
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div><h3>Salary distribution</h3><p>Employees by salary range</p></div>
+                    <span class="chart-dot chart-dot-purple" aria-hidden="true"></span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="salary-chart" aria-label="Employees by salary range"></canvas>
+                    <p class="chart-empty d-none">No salary data available yet.</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-section dashboard-bottom-grid">
+    <article class="recent-card">
+        <div class="section-heading recent-heading">
+            <div>
+                <p class="eyebrow">YOUR TEAM</p>
+                <h2>Recent employees</h2>
+            </div>
+            <a href="{% url 'employee_list' %}" class="text-link">View all <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="table-responsive recent-table-wrap">
+            <table class="table recent-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">EMPLOYEE</th>
+                        <th scope="col">DEPARTMENT</th>
+                        <th scope="col">DESIGNATION</th>
+                        <th scope="col">JOINED</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in recent_employees %}
+                    <tr>
+                        <td>
+                            <div class="employee-cell">
+                                <span class="employee-avatar" aria-hidden="true">{{ employee.name|slice:":1"|upper }}</span>
+                                <span>
+                                    <strong>{{ employee.name }}</strong>
+                                    <small>#{{ employee.id }}</small>
+                                </span>
+                            </div>
+                        </td>
+                        <td>{{ employee.department|default:"—" }}</td>
+                        <td>{{ employee.designation|default:"—" }}</td>
+                        <td>{{ employee.joining_date|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="empty-table">No employees to display yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <aside class="quick-actions-card">
+        <p class="eyebrow">GET THINGS DONE</p>
+        <h2>Quick actions</h2>
+        <p class="quick-actions-copy">Common tasks, right where you need them.</p>
+        <a href="{% url 'add_employee' %}" class="quick-action">
+            <span class="quick-action-icon quick-action-indigo" aria-hidden="true">+</span>
+            <span><strong>Add new employee</strong><small>Create an employee record</small></span>
+            <span class="quick-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="{% url 'employee_list' %}" class="quick-action">
+            <span class="quick-action-icon quick-action-teal" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </span>
+            <span><strong>View employees</strong><small>Browse the full team directory</small></span>
+            <span class="quick-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="{% url 'employee_list' %}" class="quick-action">
+            <span class="quick-action-icon quick-action-orange" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 8v6m3-3h-6"/></svg>
+            </span>
+            <span><strong>Manage employees</strong><small>Edit or remove team records</small></span>
+            <span class="quick-arrow" aria-hidden="true">→</span>
+        </a>
+    </aside>
+</section>
+
+{{ department_chart|json_script:"department-chart-data" }}
+{{ joining_chart|json_script:"joining-chart-data" }}
+{{ salary_chart|json_script:"salary-chart-data" }}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    const chartColors = ['#4f46e5', '#0ea5a4', '#8b5cf6', '#f59e0b', '#ec4899', '#38bdf8', '#84cc16'];
+    const chartFont = { family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' };
+    const departmentData = JSON.parse(document.getElementById('department-chart-data').textContent);
+    const joiningData = JSON.parse(document.getElementById('joining-chart-data').textContent);
+    const salaryData = JSON.parse(document.getElementById('salary-chart-data').textContent);
+
+    function showEmptyChart(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        canvas.classList.add('d-none');
+        canvas.nextElementSibling.classList.remove('d-none');
+    }
+
+    if (departmentData.values.some(value => value > 0)) {
+        new Chart(document.getElementById('department-chart'), {
+            type: 'doughnut',
+            data: {
+                labels: departmentData.labels,
+                datasets: [{ data: departmentData.values, backgroundColor: chartColors, borderWidth: 0, hoverOffset: 5 }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                cutout: '69%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 18, color: '#667085', font: { ...chartFont, size: 11 } } },
+                    tooltip: { backgroundColor: '#172554', padding: 12, cornerRadius: 8 }
+                }
+            }
+        });
+    } else {
+        showEmptyChart('department-chart');
+    }
+
+    if (joiningData.values.some(value => value > 0)) {
+        new Chart(document.getElementById('joining-chart'), {
+            type: 'line',
+            data: {
+                labels: joiningData.labels,
+                datasets: [{
+                    label: 'New employees',
+                    data: joiningData.values,
+                    borderColor: '#0ea5a4',
+                    backgroundColor: 'rgba(14, 165, 164, 0.12)',
+                    fill: true,
+                    tension: 0.38,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { backgroundColor: '#172554', padding: 12, cornerRadius: 8 } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#98a2b3', font: { ...chartFont, size: 10 } }, border: { display: false } },
+                    y: { beginAtZero: true, ticks: { precision: 0, color: '#98a2b3', font: { ...chartFont, size: 10 } }, grid: { color: '#eef1f6' }, border: { display: false } }
+                }
+            }
+        });
+    } else {
+        showEmptyChart('joining-chart');
+    }
+
+    if (salaryData.values.some(value => value > 0)) {
+        new Chart(document.getElementById('salary-chart'), {
+            type: 'bar',
+            data: {
+                labels: salaryData.labels,
+                datasets: [{ label: 'Employees', data: salaryData.values, backgroundColor: ['#c7d2fe', '#a5b4fc', '#818cf8', '#6366f1', '#4f46e5'], borderRadius: 6, maxBarThickness: 30 }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { backgroundColor: '#172554', padding: 12, cornerRadius: 8 } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#98a2b3', font: { ...chartFont, size: 9 }, maxRotation: 0 }, border: { display: false } },
+                    y: { beginAtZero: true, ticks: { precision: 0, color: '#98a2b3', font: { ...chartFont, size: 10 } }, grid: { color: '#eef1f6' }, border: { display: false } }
+                }
+            }
+        });
+    } else {
+        showEmptyChart('salary-chart');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}{{ title }} | EMS{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-4">
+    {{ title|default:"Add New Employee" }}
+</h3>
+
+<div class="stat-card">
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">
+            Save Employee
+        </button>
+
+        <a href="{% url 'employee_list' %}"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}
